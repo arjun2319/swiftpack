@@ -69,14 +69,19 @@ def trsv_4_tiled(L, b):
     n = L.shape[0]
     x = b.copy()
     TILE = 32
-    for j in range(n):
-        x[j] /= L[j, j]
-        i = j + 1
-        while i < n:
-            i_end = min(i + TILE, n)
-            for ii in range(i, i_end):
-                x[ii] -= L[ii, j] * x[j]
-            i = i_end
+    j = 0
+    while j < n:
+        j_end = min(j + TILE, n)
+        
+        for jj in range(j, j_end):
+            x[jj] /= L[jj, jj]
+            for ii in range(jj + 1, j_end):
+                x[ii] -= L[ii, jj] * x[jj]
+        
+        for ii in range(j_end, n):
+            for jj in range(j, j_end):
+                x[ii] -= L[ii, jj] * x[jj]
+        j = j_end
     return x
 
 # Step 5: NumPy (BLAS reference)
